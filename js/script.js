@@ -1,9 +1,9 @@
-// Step 3
+// Focus on name input on page load
 const nameInput = document.getElementById("name");
 
 nameInput.focus();
 
-// Step 4
+// Add display conditions to other job role input
 const otherInput = document.getElementById("other-job-role");
 const jobsInput = document.getElementById("title");
 
@@ -14,19 +14,26 @@ jobsInput.addEventListener("change", (event) => {
         event.target.value === "other" ? "inline-block" : "none";
 });
 
-// Step 5
+// Add display conditions to design & color combinations
 const colorInput = document.getElementById("color");
 const designInput = document.getElementById("design");
 
 colorInput.disabled = true;
 
 designInput.addEventListener("change", (event) => {
+    const colorOptions = colorInput.children;
     const selectedDesign = event.target.value;
-    const colorOptions = colorInput.querySelectorAll("[data-theme]");
 
     for (let i = 0; i < colorOptions.length; i++) {
-        colorOptions[i].hidden =
-            colorOptions[i].dataset.theme !== selectedDesign;
+        let colorOptionTheme = colorOptions[i].dataset.theme;
+
+        if (selectedDesign === colorOptionTheme) {
+            colorOptions[i].hidden = false;
+            colorOptions[i].setAttribute("selected", true);
+        } else {
+            colorOptions[i].hidden = true;
+            colorOptions[i].removeAttribute("selected");
+        }
     }
 
     colorInput.disabled = false;

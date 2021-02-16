@@ -5,23 +5,23 @@ nameInput.focus();
 
 // Add display conditions to other job role input
 const otherInput = document.getElementById("other-job-role");
-const jobsInput = document.getElementById("title");
+const jobsSelect = document.getElementById("title");
 
 otherInput.style.display = "none";
 
-jobsInput.addEventListener("change", (event) => {
+jobsSelect.addEventListener("change", (event) => {
     otherInput.style.display =
         event.target.value === "other" ? "inline-block" : "none";
 });
 
 // Add display conditions to design & color combinations
-const colorInput = document.getElementById("color");
-const designInput = document.getElementById("design");
+const colorSelect = document.getElementById("color");
+const designSelect = document.getElementById("design");
 
-colorInput.disabled = true;
+colorSelect.disabled = true;
 
-designInput.addEventListener("change", (event) => {
-    const colorOptions = colorInput.children;
+designSelect.addEventListener("change", (event) => {
+    const colorOptions = colorSelect.children;
     const selectedDesign = event.target.value;
 
     for (let i = 0; i < colorOptions.length; i++) {
@@ -39,19 +39,35 @@ designInput.addEventListener("change", (event) => {
     colorInput.disabled = false;
 });
 
-// Calculate total costs of selected activities
+// Calculate total cost of selected activities
 const activitiesFieldset = document.getElementById("activities");
 const activitiesCosts = document.getElementById("activities-cost");
 let totalCost = 0;
 
 activitiesFieldset.addEventListener("change", (event) => {
-    let activityCost = parseInt(event.target.dataset.cost);
+    const cost = parseInt(event.target.dataset.cost);
 
-    if (event.target.checked) {
-        totalCost += activityCost;
-    } else {
-        totalCost -= activityCost;
-    }
+    event.target.checked ? (totalCost += cost) : (totalCost -= cost);
 
     activitiesCosts.innerHTML = `Total: $${totalCost}`;
+});
+
+// Add display conditions to payment options with creditcard as default payment method
+const paymentSelect = document.getElementById("payment");
+const creditCardPayment = document.getElementById("credit-card");
+const paypalPayment = document.getElementById("paypal");
+const bitcoinPayment = document.getElementById("bitcoin");
+const paymentList = [creditCardPayment, paypalPayment, bitcoinPayment];
+
+paymentSelect.selectedIndex = 1;
+paypalPayment.style.display = "none";
+bitcoinPayment.style.display = "none";
+
+paymentSelect.addEventListener("change", (event) => {
+    const selectedPayment = event.target.value;
+
+    for (let i = 0; i < paymentList.length; i++) {
+        paymentList[i].style.display =
+            selectedPayment === paymentList[i].id ? "block" : "none";
+    }
 });

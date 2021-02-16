@@ -1,20 +1,24 @@
-// Focus on name input on page load
+const form = document.querySelector("form");
 const nameInput = document.getElementById("name");
+const paymentSelect = document.getElementById("payment");
+const creditCardPayment = document.getElementById("credit-card");
+const activitiesBox = document.getElementById("activities-box");
 
+// Focus on name input on page load
 nameInput.focus();
 
-// Add display conditions to other job role input
-const otherInput = document.getElementById("other-job-role");
+// Conditionally display other job role input
+const otherJobInput = document.getElementById("other-job-role");
 const jobsSelect = document.getElementById("title");
 
-otherInput.style.display = "none";
+otherJobInput.style.display = "none";
 
 jobsSelect.addEventListener("change", (event) => {
-    otherInput.style.display =
+    otherJobInput.style.display =
         event.target.value === "other" ? "inline-block" : "none";
 });
 
-// Add display conditions to design & color combinations
+// Conditionally display design & color combinations
 const colorSelect = document.getElementById("color");
 const designSelect = document.getElementById("design");
 
@@ -36,38 +40,133 @@ designSelect.addEventListener("change", (event) => {
         }
     }
 
-    colorInput.disabled = false;
+    colorSelect.disabled = false;
 });
 
 // Calculate total cost of selected activities
-const activitiesFieldset = document.getElementById("activities");
-const activitiesCosts = document.getElementById("activities-cost");
+const activitiesCost = document.getElementById("activities-cost");
 let totalCost = 0;
 
-activitiesFieldset.addEventListener("change", (event) => {
+activitiesBox.addEventListener("change", (event) => {
     const cost = parseInt(event.target.dataset.cost);
 
     event.target.checked ? (totalCost += cost) : (totalCost -= cost);
 
-    activitiesCosts.innerHTML = `Total: $${totalCost}`;
+    activitiesCost.innerHTML = `Total: $${totalCost}`;
 });
 
-// Add display conditions to payment options with creditcard as default payment method
-const paymentSelect = document.getElementById("payment");
-const creditCardPayment = document.getElementById("credit-card");
+// Conditionally display payment options with creditcard as default payment method
 const paypalPayment = document.getElementById("paypal");
 const bitcoinPayment = document.getElementById("bitcoin");
-const paymentList = [creditCardPayment, paypalPayment, bitcoinPayment];
 
 paymentSelect.selectedIndex = 1;
 paypalPayment.style.display = "none";
 bitcoinPayment.style.display = "none";
 
 paymentSelect.addEventListener("change", (event) => {
+    const paymentMethods = [creditCardPayment, paypalPayment, bitcoinPayment];
     const selectedPayment = event.target.value;
 
-    for (let i = 0; i < paymentList.length; i++) {
-        paymentList[i].style.display =
-            selectedPayment === paymentList[i].id ? "block" : "none";
+    for (let i = 0; i < paymentMethods.length; i++) {
+        paymentMethods[i].style.display =
+            paymentMethods[i].id === selectedPayment ? "block" : "none";
+    }
+});
+
+// Validate form after submit event
+const validationHintToggle = (validation, checkedElement, validationHint) => {
+    if (validation) {
+        checkedElement.parentElement.classList.add("valid");
+        checkedElement.parentElement.classList.remove("not-valid");
+
+        if (Array.isArray(validationHint)) {
+            for (let i = 0; i < validationHint.length; i++) {
+                validationHint[i].style.display = "none";
+            }
+        } else {
+            validationHint.style.display = "none";
+        }
+
+        return true;
+    }
+
+    checkedElement.parentElement.classList.add("not-valid");
+    checkedElement.parentElement.classList.remove("valid");
+
+    if (Array.isArray(validationHint)) {
+        for (let i = 0; i < validationHint.length; i++) {
+            validationHint[i].style.display = "inline";
+        }
+    } else {
+        validationHint.style.display = "inline";
+    }
+};
+
+const validateNameInput = () => {
+    const nameValue = nameInput.value;
+    const nameValidation = nameValue.match(/^\D+$/);
+    const nameHint = document.getElementById("name-hint");
+
+    return validationHintToggle(nameValidation, nameInput, nameHint);
+};
+
+const validateEmailInput = () => {
+    const emailInput = document.getElementById("email");
+    const emailValue = emailInput.value;
+    const emailValidation = emailValue.match(/^\w+@\w+[\.\D]+$/);
+    const emailHint = document.getElementById("email-hint");
+
+    return validationHintToggle(emailValidation, emailInput, emailHint);
+};
+
+const validateActivitiesInput = () => {
+    const selectedActivities = activitiesBox.querySelectorAll(
+        "input[type='checkbox']:checked"
+    );
+    const activitiesValidation = selectedActivities.length > 0;
+    const activitiesHint = document.getElementById("activities-hint");
+
+    return validationHintToggle(
+        activitiesValidation,
+        activitiesBox,
+        activitiesHint
+    );
+};
+
+const validateCreditCardInput = () => {
+    const isCreditCardPayment = paymentSelect.value === "credit-card";
+
+    if (!isCreditCardPayment) {
+        return true;
+    } else {
+        const cardNumberValue = document.getElementById("cc-num").value;
+        const zipCodeValue = document.getElementById("zip").value;
+        const cvvCodeValue = document.getElementById("cvv").value;
+        const creditCardValidation =
+            cardNumberValue.match(/^\d{13,16}$/) &&
+            zipCodeValue.match(/^\d{5}$/) &&
+            cvvCodeValue.match(/^\d{3}$/);
+        const creditCardHints = [
+            document.getElementById("cc-hint"),
+            document.getElementById("zip-hint"),
+            document.getElementById("cvv-hint"),
+        ];
+
+        return validationHintToggle(
+            creditCardValidation,
+            creditCardPayment,
+            creditCardHints
+        );
+    }
+};
+
+form.addEventListener("submit", (event) => {
+    if (
+        !validateNameInput() &&
+        !validateEmailInput() &&
+        !validateActivitiesInput() &&
+        !validateCreditCardInput()
+    ) {
+        event.preventDefault();
     }
 });

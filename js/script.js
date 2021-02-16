@@ -38,3 +38,20 @@ designInput.addEventListener("change", (event) => {
 
     colorInput.disabled = false;
 });
+
+// Calculate total costs of selected activities
+const activitiesFieldset = document.getElementById("activities");
+const activitiesCosts = document.getElementById("activities-cost");
+let totalCost = 0;
+
+activitiesFieldset.addEventListener("change", (event) => {
+    let activityCost = parseInt(event.target.dataset.cost);
+
+    if (event.target.checked) {
+        totalCost += activityCost;
+    } else {
+        totalCost -= activityCost;
+    }
+
+    activitiesCosts.innerHTML = `Total: $${totalCost}`;
+});

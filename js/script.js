@@ -91,34 +91,12 @@ paymentSelect.addEventListener("change", (event) => {
     }
 });
 
+// Validate name input after key up event
+nameInput.addEventListener("keyup", () => {
+    validateNameInput();
+});
+
 // Validate form after submit event
-const validateCreditCardInput = () => {
-    const isCreditCardPayment = paymentSelect.value === "credit-card";
-
-    if (!isCreditCardPayment) {
-        return true;
-    } else {
-        const cardNumberValue = document.getElementById("cc-num").value;
-        const zipCodeValue = document.getElementById("zip").value;
-        const cvvCodeValue = document.getElementById("cvv").value;
-        const creditCardValidation =
-            cardNumberValue.match(/^\d{13,16}$/) &&
-            zipCodeValue.match(/^\d{5}$/) &&
-            cvvCodeValue.match(/^\d{3}$/);
-        const creditCardHints = [
-            document.getElementById("cc-hint"),
-            document.getElementById("zip-hint"),
-            document.getElementById("cvv-hint"),
-        ];
-
-        return validationHintToggle(
-            creditCardValidation,
-            creditCardPayment,
-            creditCardHints
-        );
-    }
-};
-
 form.addEventListener("submit", (event) => {
     if (
         !validateNameInput() &&
@@ -130,7 +108,7 @@ form.addEventListener("submit", (event) => {
     }
 });
 
-// Helper function for form validation hint toggle
+// Helper function for checking if the selected activity will conflict with other actitivies
 const disableConflictingActivities = (selectedActivity) => {
     const selectedDateTime = selectedActivity.dataset.dayAndTime;
 
@@ -149,35 +127,6 @@ const disableConflictingActivities = (selectedActivity) => {
                 checkboxInputs[i].parentElement.classList.remove("disabled");
             }
         }
-    }
-};
-
-// Helper function for form validation hint toggle
-const validationHintToggle = (validation, checkedElement, validationHint) => {
-    if (validation) {
-        checkedElement.parentElement.classList.add("valid");
-        checkedElement.parentElement.classList.remove("not-valid");
-
-        if (Array.isArray(validationHint)) {
-            for (let i = 0; i < validationHint.length; i++) {
-                validationHint[i].style.display = "none";
-            }
-        } else {
-            validationHint.style.display = "none";
-        }
-
-        return true;
-    }
-
-    checkedElement.parentElement.classList.add("not-valid");
-    checkedElement.parentElement.classList.remove("valid");
-
-    if (Array.isArray(validationHint)) {
-        for (let i = 0; i < validationHint.length; i++) {
-            validationHint[i].style.display = "inline";
-        }
-    } else {
-        validationHint.style.display = "inline";
     }
 };
 
@@ -211,4 +160,60 @@ const validateActivitiesInput = () => {
         activitiesBox,
         activitiesHint
     );
+};
+
+const validateCreditCardInput = () => {
+    const isCreditCardPayment = paymentSelect.value === "credit-card";
+
+    if (!isCreditCardPayment) {
+        return true;
+    } else {
+        const cardNumberValue = document.getElementById("cc-num").value;
+        const zipCodeValue = document.getElementById("zip").value;
+        const cvvCodeValue = document.getElementById("cvv").value;
+        const creditCardValidation =
+            cardNumberValue.match(/^\d{13,16}$/) &&
+            zipCodeValue.match(/^\d{5}$/) &&
+            cvvCodeValue.match(/^\d{3}$/);
+        const creditCardHints = [
+            document.getElementById("cc-hint"),
+            document.getElementById("zip-hint"),
+            document.getElementById("cvv-hint"),
+        ];
+
+        return validationHintToggle(
+            creditCardValidation,
+            creditCardPayment,
+            creditCardHints
+        );
+    }
+};
+
+// Helper function for form validation hint toggle
+const validationHintToggle = (validation, checkedElement, validationHint) => {
+    if (validation) {
+        checkedElement.parentElement.classList.add("valid");
+        checkedElement.parentElement.classList.remove("not-valid");
+
+        if (Array.isArray(validationHint)) {
+            for (let i = 0; i < validationHint.length; i++) {
+                validationHint[i].style.display = "none";
+            }
+        } else {
+            validationHint.style.display = "none";
+        }
+
+        return true;
+    }
+
+    checkedElement.parentElement.classList.add("not-valid");
+    checkedElement.parentElement.classList.remove("valid");
+
+    if (Array.isArray(validationHint)) {
+        for (let i = 0; i < validationHint.length; i++) {
+            validationHint[i].style.display = "inline";
+        }
+    } else {
+        validationHint.style.display = "inline";
+    }
 };

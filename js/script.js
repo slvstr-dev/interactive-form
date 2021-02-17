@@ -1,5 +1,6 @@
 const form = document.querySelector("form");
 const nameInput = document.getElementById("name");
+const nameHint = document.getElementById("name-hint");
 const paymentSelect = document.getElementById("payment");
 const creditCardPayment = document.getElementById("credit-card");
 const activitiesBox = document.getElementById("activities-box");
@@ -93,6 +94,13 @@ paymentSelect.addEventListener("change", (event) => {
 
 // Validate name input after key up event
 nameInput.addEventListener("keyup", () => {
+    // Conditionally set content of name hint
+    if (nameInput.value.length !== 0 && !nameInput.value.match(/^\D+$/)) {
+        nameHint.innerHTML = "Name field can only accept letters";
+    } else {
+        nameHint.innerHTML = "Name field cannot be blank";
+    }
+
     validateNameInput();
 });
 
@@ -132,9 +140,7 @@ const disableConflictingActivities = (selectedActivity) => {
 
 // Helper functions for validation of name, email, activities and creditcard inputs
 const validateNameInput = () => {
-    const nameValue = nameInput.value;
-    const nameValidation = nameValue.match(/^\D+$/);
-    const nameHint = document.getElementById("name-hint");
+    const nameValidation = nameInput.value.match(/^\D+$/);
 
     return validationHintToggle(nameValidation, nameInput, nameHint);
 };

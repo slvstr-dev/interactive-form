@@ -106,10 +106,15 @@ nameInput.addEventListener("keyup", () => {
 
 // Validate form after submit event
 form.addEventListener("submit", (event) => {
+    validateNameInput();
+    validateEmailInput();
+    validateActivitiesInput();
+    validateCreditCardInput();
+
     if (
-        !validateNameInput() &&
-        !validateEmailInput() &&
-        !validateActivitiesInput() &&
+        !validateNameInput() ||
+        !validateEmailInput() ||
+        !validateActivitiesInput() ||
         !validateCreditCardInput()
     ) {
         event.preventDefault();
@@ -147,8 +152,7 @@ const validateNameInput = () => {
 
 const validateEmailInput = () => {
     const emailInput = document.getElementById("email");
-    const emailValue = emailInput.value;
-    const emailValidation = emailValue.match(/^\w+@\w+[\.\D]+$/);
+    const emailValidation = emailInput.value.match(/^\w+@\w+[\.\D]+$/);
     const emailHint = document.getElementById("email-hint");
 
     return validationHintToggle(emailValidation, emailInput, emailHint);

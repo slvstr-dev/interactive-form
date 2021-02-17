@@ -3,6 +3,7 @@ const nameInput = document.getElementById("name");
 const paymentSelect = document.getElementById("payment");
 const creditCardPayment = document.getElementById("credit-card");
 const activitiesBox = document.getElementById("activities-box");
+const checkboxInputs = document.querySelectorAll("input[type='checkbox']");
 
 // Focus on name input on page load
 nameInput.focus();
@@ -55,16 +56,20 @@ activitiesBox.addEventListener("change", (event) => {
     activitiesCost.innerHTML = `Total: $${totalCost}`;
 });
 
-// Improve focus state visibility of checkboxes
-const checkboxInputs = document.querySelectorAll("input[type='checkbox']");
-
+// Listen for focus, blur and change events on checkboxes
 for (let i = 0; i < checkboxInputs.length; i++) {
+    // Improve focus state visibility of checkboxes
     checkboxInputs[i].addEventListener("focus", (event) => {
         event.target.parentElement.classList.add("focus");
     });
 
     checkboxInputs[i].addEventListener("blur", (event) => {
         event.target.parentElement.classList.remove("focus");
+    });
+
+    // Prevent registration of conflicting activities
+    checkboxInputs[i].addEventListener("change", (event) => {
+        disableConflictingActivities(event.target);
     });
 }
 
@@ -85,6 +90,67 @@ paymentSelect.addEventListener("change", (event) => {
             paymentMethods[i].id === selectedPayment ? "block" : "none";
     }
 });
+
+// Validate form after submit event
+const validateCreditCardInput = () => {
+    const isCreditCardPayment = paymentSelect.value === "credit-card";
+
+    if (!isCreditCardPayment) {
+        return true;
+    } else {
+        const cardNumberValue = document.getElementById("cc-num").value;
+        const zipCodeValue = document.getElementById("zip").value;
+        const cvvCodeValue = document.getElementById("cvv").value;
+        const creditCardValidation =
+            cardNumberValue.match(/^\d{13,16}$/) &&
+            zipCodeValue.match(/^\d{5}$/) &&
+            cvvCodeValue.match(/^\d{3}$/);
+        const creditCardHints = [
+            document.getElementById("cc-hint"),
+            document.getElementById("zip-hint"),
+            document.getElementById("cvv-hint"),
+        ];
+
+        return validationHintToggle(
+            creditCardValidation,
+            creditCardPayment,
+            creditCardHints
+        );
+    }
+};
+
+form.addEventListener("submit", (event) => {
+    if (
+        !validateNameInput() &&
+        !validateEmailInput() &&
+        !validateActivitiesInput() &&
+        !validateCreditCardInput()
+    ) {
+        event.preventDefault();
+    }
+});
+
+// Helper function for form validation hint toggle
+const disableConflictingActivities = (selectedActivity) => {
+    const selectedDateTime = selectedActivity.dataset.dayAndTime;
+
+    for (let i = 0; i < checkboxInputs.length; i++) {
+        const currentDateTime = checkboxInputs[i].dataset.dayAndTime;
+
+        if (
+            checkboxInputs[i] !== selectedActivity &&
+            currentDateTime === selectedDateTime
+        ) {
+            if (selectedActivity.checked) {
+                checkboxInputs[i].disabled = true;
+                checkboxInputs[i].parentElement.classList.add("disabled");
+            } else {
+                checkboxInputs[i].disabled = false;
+                checkboxInputs[i].parentElement.classList.remove("disabled");
+            }
+        }
+    }
+};
 
 // Helper function for form validation hint toggle
 const validationHintToggle = (validation, checkedElement, validationHint) => {
@@ -146,42 +212,3 @@ const validateActivitiesInput = () => {
         activitiesHint
     );
 };
-
-// Validate form after submit event
-const validateCreditCardInput = () => {
-    const isCreditCardPayment = paymentSelect.value === "credit-card";
-
-    if (!isCreditCardPayment) {
-        return true;
-    } else {
-        const cardNumberValue = document.getElementById("cc-num").value;
-        const zipCodeValue = document.getElementById("zip").value;
-        const cvvCodeValue = document.getElementById("cvv").value;
-        const creditCardValidation =
-            cardNumberValue.match(/^\d{13,16}$/) &&
-            zipCodeValue.match(/^\d{5}$/) &&
-            cvvCodeValue.match(/^\d{3}$/);
-        const creditCardHints = [
-            document.getElementById("cc-hint"),
-            document.getElementById("zip-hint"),
-            document.getElementById("cvv-hint"),
-        ];
-
-        return validationHintToggle(
-            creditCardValidation,
-            creditCardPayment,
-            creditCardHints
-        );
-    }
-};
-
-form.addEventListener("submit", (event) => {
-    if (
-        !validateNameInput() &&
-        !validateEmailInput() &&
-        !validateActivitiesInput() &&
-        !validateCreditCardInput()
-    ) {
-        event.preventDefault();
-    }
-});

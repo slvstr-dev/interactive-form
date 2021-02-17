@@ -55,6 +55,19 @@ activitiesBox.addEventListener("change", (event) => {
     activitiesCost.innerHTML = `Total: $${totalCost}`;
 });
 
+// Improve focus state visibility of checkboxes
+const checkboxInputs = document.querySelectorAll("input[type='checkbox']");
+
+for (let i = 0; i < checkboxInputs.length; i++) {
+    checkboxInputs[i].addEventListener("focus", (event) => {
+        event.target.parentElement.classList.add("focus");
+    });
+
+    checkboxInputs[i].addEventListener("blur", (event) => {
+        event.target.parentElement.classList.remove("focus");
+    });
+}
+
 // Conditionally display payment options with creditcard as default payment method
 const paypalPayment = document.getElementById("paypal");
 const bitcoinPayment = document.getElementById("bitcoin");
@@ -73,7 +86,7 @@ paymentSelect.addEventListener("change", (event) => {
     }
 });
 
-// Validate form after submit event
+// Helper function for form validation hint toggle
 const validationHintToggle = (validation, checkedElement, validationHint) => {
     if (validation) {
         checkedElement.parentElement.classList.add("valid");
@@ -102,6 +115,7 @@ const validationHintToggle = (validation, checkedElement, validationHint) => {
     }
 };
 
+// Helper functions for validation of name, email, activities and creditcard inputs
 const validateNameInput = () => {
     const nameValue = nameInput.value;
     const nameValidation = nameValue.match(/^\D+$/);
@@ -133,6 +147,7 @@ const validateActivitiesInput = () => {
     );
 };
 
+// Validate form after submit event
 const validateCreditCardInput = () => {
     const isCreditCardPayment = paymentSelect.value === "credit-card";
 

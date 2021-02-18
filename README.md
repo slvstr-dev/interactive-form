@@ -2,42 +2,23 @@
 
 Third project of the Team Treehouse Full Stack JavaScript Techdegree.
 
-## The "Name" field
+## Full Stack Conference Form
 
-Will add a description here before submitting for review.
+This form enables user to register for the "Full Stack Conference".
 
-## "Job Role" section
+At default the form will only display the fields that are neccessary. Any exceptions, e.g. an other job role, preferred t-shirt design or any payment other than credit card, will show the user the required input fields.
 
-Will add a description here before submitting for review.
+All the required fields will be validated when the user tries to submit and when needed usefull hints will be provided before the form can be succesfully submitted.
 
-## "T-Shirt Info" section
+### Register for activities
 
-Will add a description here before submitting for review.
+Selecting an activity will check if there are any other activities that occur at the same time. Those activities will be disabled preventing the user to register for conflicting activities
 
-## "Register for Activities" section
+### Real-time conditional error messages
 
-Will add a description here before submitting for review.
+The name input validates user input real time when it registers a key up event. It will check for two conditions using regular expressions:
 
-### Extra Credit: Prevent users from registering for conflicting activities
+-   "Name" field is blank.
+-   "Name" field contains characters other than letters.
 
-Will add a description here before submitting for review.
-
-## "Payment Info" section
-
-Will add a description here before submitting for review.
-
-## "Form validation" section
-
-Will add a description here before submitting for review.
-
-### Extra Credit: Real-time error message
-
-Will add a description here before submitting for review.
-
-## Accessibility
-
-Will add a description here before submitting for review.
-
-### Extra Credit: Conditional error message
-
-Will add a description here before submitting for review.
+The user will be provided with conditional error messages when one of the conditions is met. If none of the conditions is met the error messages will be hidden.

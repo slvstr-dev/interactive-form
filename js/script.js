@@ -14,6 +14,7 @@ const cvvCodeInput = document.getElementById("cvv");
 const ccvCodeHint = document.getElementById("cvv-hint");
 const paymentSelect = document.getElementById("payment");
 const creditCardPayment = document.getElementById("credit-card");
+let isValidActivity = false;
 
 // Focus on name input on page load
 nameInput.focus();
@@ -64,6 +65,8 @@ activitiesBox.addEventListener("change", (event) => {
     event.target.checked ? (totalCost += cost) : (totalCost -= cost);
 
     activitiesCost.innerHTML = `Total: $${totalCost}`;
+
+    isValidActivity = !isValidActivity;
 });
 
 // Listen for focus, blur and change events on checkboxes
@@ -103,7 +106,7 @@ paymentSelect.addEventListener("change", (event) => {
 
 // Validate name input after key up event
 nameInput.addEventListener("keyup", () => {
-    const nameValidation = nameInput.value.match(/^\D+$/);
+    const isValidName = nameInput.value.match(/^\D+$/);
 
     // Conditionally set content of name hint
     if (nameInput.value.length !== 0 && !nameInput.value.match(/^\D+$/)) {
@@ -112,27 +115,24 @@ nameInput.addEventListener("keyup", () => {
         nameHint.innerHTML = "Name field cannot be blank";
     }
 
-    validateInput(nameValidation, nameInput, nameHint);
+    validationHintToggle(isValidName, nameInput, nameHint);
 });
 
 // Validate form after submit event
 form.addEventListener("submit", (event) => {
-    const nameValidation = nameInput.value.match(/^\D+$/);
-    const emailValidation = emailInput.value.match(/^\w+@\w+[\.\D]+$/);
-    let activitiesValidation = false;
+    const isValidName = nameInput.value.match(/^\D+$/);
+    const isValidEmail = emailInput.value.match(/^\w+@\w+[\.\D]+$/);
+    const isValidCreditCard = validateCreditCardInput();
+    const isValidForm =
+        isValidName && isValidEmail && isValidActivity && isValidCreditCard;
 
-    for (let i = 0; i < activityInputs.length; i++) {
-        if (activityInputs[i].checked) {
-            activitiesValidation = true;
-        }
+    validationHintToggle(isValidName, nameInput, nameHint);
+    validationHintToggle(isValidEmail, emailInput, emailHint);
+    validationHintToggle(isValidActivity, activitiesBox, activitiesHint);
+
+    if (!isValidForm) {
+        event.preventDefault();
     }
-
-    validateInput(nameValidation, nameInput, nameHint);
-    validateInput(emailValidation, emailInput, emailHint);
-    validateInput(activitiesValidation, activitiesBox, activitiesHint);
-    validateCreditCardInput();
-
-    event.preventDefault();
 });
 
 // Helper function for checking if the selected activity will conflict with other actitivies
@@ -157,23 +157,29 @@ const disableConflictingActivities = (selectedActivity) => {
     }
 };
 
-// Helper function for credit card validation
+// Helper function for validating credit card input fields
 const validateCreditCardInput = () => {
-    const cardNumberValidation = cardNumberInput.value.match(/^\d{13,16}$/);
-    const zipCodeValidation = zipCodeInput.value.match(/^\d{5}$/);
-    const ccvCodeValidation = cvvCodeInput.value.match(/^\d{3}$/);
+    const isValidCardNumber = cardNumberInput.value.match(/^\d{13,16}$/);
+    const isValidZipCode = zipCodeInput.value.match(/^\d{5}$/);
+    const isValidCcvCode = cvvCodeInput.value.match(/^\d{3}$/);
 
     if (paymentSelect.value !== "credit-card") {
         return true;
     } else {
-        validateInput(cardNumberValidation, cardNumberInput, cardNumberHint);
-        validateInput(zipCodeValidation, zipCodeInput, zipCodeHint);
-        validateInput(ccvCodeValidation, cvvCodeInput, ccvCodeHint);
+        validationHintToggle(
+            isValidCardNumber,
+            cardNumberInput,
+            cardNumberHint
+        );
+        validationHintToggle(isValidZipCode, zipCodeInput, zipCodeHint);
+        validationHintToggle(isValidCcvCode, cvvCodeInput, ccvCodeHint);
+
+        return isValidCardNumber && isValidZipCode && isValidCcvCode;
     }
 };
 
-// Helper function for form input validation
-const validateInput = (validation, checkedElement, validationHint) => {
+// Helper function for validation hint toggle
+const validationHintToggle = (validation, checkedElement, validationHint) => {
     if (validation) {
         checkedElement.parentElement.classList.add("valid");
         checkedElement.parentElement.classList.remove("not-valid");

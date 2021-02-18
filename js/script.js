@@ -1,10 +1,19 @@
 const form = document.querySelector("form");
 const nameInput = document.getElementById("name");
 const nameHint = document.getElementById("name-hint");
+const emailInput = document.getElementById("email");
+const emailHint = document.getElementById("email-hint");
+const activitiesBox = document.getElementById("activities-box");
+const activityInputs = document.querySelectorAll("input[type='checkbox']");
+const activitiesHint = document.getElementById("activities-hint");
+const cardNumberInput = document.getElementById("cc-num");
+const cardNumberHint = document.getElementById("cc-hint");
+const zipCodeInput = document.getElementById("zip");
+const zipCodeHint = document.getElementById("zip-hint");
+const cvvCodeInput = document.getElementById("cvv");
+const ccvCodeHint = document.getElementById("cvv-hint");
 const paymentSelect = document.getElementById("payment");
 const creditCardPayment = document.getElementById("credit-card");
-const activitiesBox = document.getElementById("activities-box");
-const checkboxInputs = document.querySelectorAll("input[type='checkbox']");
 
 // Focus on name input on page load
 nameInput.focus();
@@ -58,18 +67,18 @@ activitiesBox.addEventListener("change", (event) => {
 });
 
 // Listen for focus, blur and change events on checkboxes
-for (let i = 0; i < checkboxInputs.length; i++) {
+for (let i = 0; i < activityInputs.length; i++) {
     // Improve focus state visibility of checkboxes
-    checkboxInputs[i].addEventListener("focus", (event) => {
+    activityInputs[i].addEventListener("focus", (event) => {
         event.target.parentElement.classList.add("focus");
     });
 
-    checkboxInputs[i].addEventListener("blur", (event) => {
+    activityInputs[i].addEventListener("blur", (event) => {
         event.target.parentElement.classList.remove("focus");
     });
 
     // Prevent registration of conflicting activities
-    checkboxInputs[i].addEventListener("change", (event) => {
+    activityInputs[i].addEventListener("change", (event) => {
         disableConflictingActivities(event.target);
     });
 }
@@ -94,6 +103,8 @@ paymentSelect.addEventListener("change", (event) => {
 
 // Validate name input after key up event
 nameInput.addEventListener("keyup", () => {
+    const nameValidation = nameInput.value.match(/^\D+$/);
+
     // Conditionally set content of name hint
     if (nameInput.value.length !== 0 && !nameInput.value.match(/^\D+$/)) {
         nameHint.innerHTML = "Name field can only accept letters";
@@ -101,106 +112,68 @@ nameInput.addEventListener("keyup", () => {
         nameHint.innerHTML = "Name field cannot be blank";
     }
 
-    validateNameInput();
+    validateInput(nameValidation, nameInput, nameHint);
 });
 
 // Validate form after submit event
 form.addEventListener("submit", (event) => {
-    validateNameInput();
-    validateEmailInput();
-    validateActivitiesInput();
+    const nameValidation = nameInput.value.match(/^\D+$/);
+    const emailValidation = emailInput.value.match(/^\w+@\w+[\.\D]+$/);
+    let activitiesValidation = false;
+
+    for (let i = 0; i < activityInputs.length; i++) {
+        if (activityInputs[i].checked) {
+            activitiesValidation = true;
+        }
+    }
+
+    validateInput(nameValidation, nameInput, nameHint);
+    validateInput(emailValidation, emailInput, emailHint);
+    validateInput(activitiesValidation, activitiesBox, activitiesHint);
     validateCreditCardInput();
 
-    if (
-        !validateNameInput() ||
-        !validateEmailInput() ||
-        !validateActivitiesInput() ||
-        !validateCreditCardInput()
-    ) {
-        event.preventDefault();
-    }
+    event.preventDefault();
 });
 
 // Helper function for checking if the selected activity will conflict with other actitivies
 const disableConflictingActivities = (selectedActivity) => {
     const selectedDateTime = selectedActivity.dataset.dayAndTime;
 
-    for (let i = 0; i < checkboxInputs.length; i++) {
-        const currentDateTime = checkboxInputs[i].dataset.dayAndTime;
+    for (let i = 0; i < activityInputs.length; i++) {
+        const currentDateTime = activityInputs[i].dataset.dayAndTime;
 
         if (
-            checkboxInputs[i] !== selectedActivity &&
+            activityInputs[i] !== selectedActivity &&
             currentDateTime === selectedDateTime
         ) {
             if (selectedActivity.checked) {
-                checkboxInputs[i].disabled = true;
-                checkboxInputs[i].parentElement.classList.add("disabled");
+                activityInputs[i].disabled = true;
+                activityInputs[i].parentElement.classList.add("disabled");
             } else {
-                checkboxInputs[i].disabled = false;
-                checkboxInputs[i].parentElement.classList.remove("disabled");
+                activityInputs[i].disabled = false;
+                activityInputs[i].parentElement.classList.remove("disabled");
             }
         }
     }
 };
 
-// Helper functions for validation of name, email, activities and creditcard inputs
-const validateNameInput = () => {
-    const nameValidation = nameInput.value.match(/^\D+$/);
-
-    return validationHintToggle(nameValidation, nameInput, nameHint);
-};
-
-const validateEmailInput = () => {
-    const emailInput = document.getElementById("email");
-    const emailValidation = emailInput.value.match(/^\w+@\w+[\.\D]+$/);
-    const emailHint = document.getElementById("email-hint");
-
-    return validationHintToggle(emailValidation, emailInput, emailHint);
-};
-
-const validateActivitiesInput = () => {
-    const selectedActivities = activitiesBox.querySelectorAll(
-        "input[type='checkbox']:checked"
-    );
-    const activitiesValidation = selectedActivities.length > 0;
-    const activitiesHint = document.getElementById("activities-hint");
-
-    return validationHintToggle(
-        activitiesValidation,
-        activitiesBox,
-        activitiesHint
-    );
-};
-
+// Helper function for credit card validation
 const validateCreditCardInput = () => {
-    const isCreditCardPayment = paymentSelect.value === "credit-card";
+    const cardNumberValidation = cardNumberInput.value.match(/^\d{13,16}$/);
+    const zipCodeValidation = zipCodeInput.value.match(/^\d{5}$/);
+    const ccvCodeValidation = cvvCodeInput.value.match(/^\d{3}$/);
 
-    if (!isCreditCardPayment) {
+    if (paymentSelect.value !== "credit-card") {
         return true;
     } else {
-        const cardNumberValue = document.getElementById("cc-num").value;
-        const zipCodeValue = document.getElementById("zip").value;
-        const cvvCodeValue = document.getElementById("cvv").value;
-        const creditCardValidation =
-            cardNumberValue.match(/^\d{13,16}$/) &&
-            zipCodeValue.match(/^\d{5}$/) &&
-            cvvCodeValue.match(/^\d{3}$/);
-        const creditCardHints = [
-            document.getElementById("cc-hint"),
-            document.getElementById("zip-hint"),
-            document.getElementById("cvv-hint"),
-        ];
-
-        return validationHintToggle(
-            creditCardValidation,
-            creditCardPayment,
-            creditCardHints
-        );
+        validateInput(cardNumberValidation, cardNumberInput, cardNumberHint);
+        validateInput(zipCodeValidation, zipCodeInput, zipCodeHint);
+        validateInput(ccvCodeValidation, cvvCodeInput, ccvCodeHint);
     }
 };
 
-// Helper function for form validation hint toggle
-const validationHintToggle = (validation, checkedElement, validationHint) => {
+// Helper function for form input validation
+const validateInput = (validation, checkedElement, validationHint) => {
     if (validation) {
         checkedElement.parentElement.classList.add("valid");
         checkedElement.parentElement.classList.remove("not-valid");

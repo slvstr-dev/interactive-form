@@ -4,7 +4,7 @@ const nameHint = document.getElementById("name-hint");
 const activitiesBox = document.getElementById("activities-box");
 const activityInputs = document.querySelectorAll("input[type='checkbox']");
 const paymentSelect = document.getElementById("payment");
-let isValidActivity = false;
+let selectedActivities = 0;
 
 // Focus on name input on page load
 nameInput.focus();
@@ -52,11 +52,11 @@ let totalCost = 0;
 activitiesBox.addEventListener("change", (event) => {
     const cost = parseInt(event.target.dataset.cost);
 
-    event.target.checked ? (totalCost += cost) : (totalCost -= cost);
+    event.target.checked
+        ? (selectedActivities++, (totalCost += cost))
+        : (selectedActivities--, (totalCost -= cost));
 
     activitiesCost.innerHTML = `Total: $${totalCost}`;
-
-    isValidActivity = !isValidActivity;
 });
 
 // Listen for focus, blur and change events on checkboxes
@@ -111,20 +111,9 @@ nameInput.addEventListener("keyup", () => {
 
 // Validate form after submit event
 const form = document.querySelector("form");
-const emailInput = document.getElementById("email");
-const emailHint = document.getElementById("email-hint");
-const activitiesHint = document.getElementById("activities-hint");
 
 form.addEventListener("submit", (event) => {
-    const isValidName = nameInput.value.match(/^\D+$/);
-    const isValidEmail = emailInput.value.match(/^\w+@\w+\.\D+$/);
-    const isValidCreditCard = validateCreditCardInput();
-    const isValidForm =
-        isValidName && isValidEmail && isValidActivity && isValidCreditCard;
-
-    toggleValidationHint(isValidName, nameInput, nameHint);
-    toggleValidationHint(isValidEmail, emailInput, emailHint);
-    toggleValidationHint(isValidActivity, activitiesBox, activitiesHint);
+    const isValidForm = validateForm();
 
     if (!isValidForm) {
         event.preventDefault();
@@ -179,6 +168,23 @@ const validateCreditCardInput = () => {
 
         return isValidCardNumber && isValidZipCode && isValidCcvCode;
     }
+};
+
+// Helper function for complete form validation
+const validateForm = () => {
+    const emailInput = document.getElementById("email");
+    const activitiesHint = document.getElementById("activities-hint");
+    const emailHint = document.getElementById("email-hint");
+    const isValidName = nameInput.value.match(/^\D+$/);
+    const isValidEmail = emailInput.value.match(/^\w+@\w+\.\D+$/);
+    const isValidActivity = selectedActivities > 0;
+    const isValidCreditCard = validateCreditCardInput();
+
+    toggleValidationHint(isValidName, nameInput, nameHint);
+    toggleValidationHint(isValidEmail, emailInput, emailHint);
+    toggleValidationHint(isValidActivity, activitiesBox, activitiesHint);
+
+    return isValidName && isValidEmail && isValidActivity && isValidCreditCard;
 };
 
 // Helper function for validation hint toggle
